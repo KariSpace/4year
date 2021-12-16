@@ -1,0 +1,23 @@
+function y2014=Curr(y)
+targetSeries=tonndata(y,true,false);
+feedbackDelays=2:3; % мінімум 2 роки в лінію затримок, так як розробляється прогноз
+% на 2 роки вперед
+hiddenLayerSize=2; % якщо взяти більше нейронів, то параметрів мережі більше ніж даних
+net = narnet(feedbackDelays,hiddenLayerSize);
+net.inputs{1}.processFcns={'removeconstantrows','mapminmax'};
+[inputs,inputStates,layerStates,targets] = preparets(net,{},{},targetSeries);
+net.divideFcn='';
+net.trainFcn='trainbr';
+net.performFcn ='mse'; % средньоквадратична похибка
+net.plotFcns={'plotperform','plottrainstate','plotresponse','ploterrcorr','plotinerrcorr'};
+net= train(net, inputs, targets, inputStates, layerStates); % тренування
+outputs=net(inputs, inputStates, layerStates);
+errors=gsubtract(targets, outputs);
+performance=perform(net,targets, outputs);
+%view(net);
+nets=removedelay(net,2);
+[xs,xis,ais,ts]=preparets(nets,{},{},targetSeries);
+ys=nets(xs,xis,ais);
+y2014=ys(end)
+view(nets)
+end
