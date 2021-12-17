@@ -1,3 +1,3 @@
 function f = primfun(x) 
-    f=sqrt(x(1).^2+x(2).^2); 
+    f=(x(1)-4).^2+(x(2)-6).^2; 
 end
